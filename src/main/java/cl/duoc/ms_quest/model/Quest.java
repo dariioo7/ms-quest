@@ -24,13 +24,13 @@ public class Quest {
     private QuestType questType;
 
     @Column(nullable = false)
-    private Integer objective;
+    private int objective;
 
     @Column(name = "exp_reward", nullable = false)
-    private Integer expReward;
+    private int expReward;
 
     @Column(name = "coin_reward", nullable = false)
-    private Integer coinReward;
+    private int goldReward;
 
     @Column(nullable = false)
     private String status = "ACTIVE";
