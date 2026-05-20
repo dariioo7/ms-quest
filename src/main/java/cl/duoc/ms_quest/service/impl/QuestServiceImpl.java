@@ -1,12 +1,17 @@
 package cl.duoc.ms_quest.service.impl;
 
 import cl.duoc.ms_quest.client.UserFeignClient;
+import cl.duoc.ms_quest.dto.GoldRequestDto;
 import cl.duoc.ms_quest.dto.QuestRequestDto;
 import cl.duoc.ms_quest.dto.QuestResponseDto;
 import cl.duoc.ms_quest.dto.UserDto;
 import cl.duoc.ms_quest.model.Quest;
+import cl.duoc.ms_quest.model.UserQuest;
 import cl.duoc.ms_quest.repository.QuestRepository;
+import cl.duoc.ms_quest.repository.UserQuestRepository;
 import cl.duoc.ms_quest.service.QuestService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,7 @@ public class QuestServiceImpl implements QuestService {
 
     private final QuestRepository repository;
     private final UserFeignClient userFeignClient;
+    private final UserQuestRepository userQuestRepository;
 
     @Override
     public QuestResponseDto createQuest(QuestRequestDto dto) {
@@ -58,7 +64,7 @@ public class QuestServiceImpl implements QuestService {
         quest.setQuestType(dto.getQuestType());
         quest.setObjective(dto.getObjective());
         quest.setExpReward(dto.getExpReward());
-        quest.setCoinReward(dto.getCoinReward());
+        quest.setGoldReward(dto.getCoinReward());
         quest.setStatus("ACTIVE");
         return quest;
     }
@@ -71,7 +77,7 @@ public class QuestServiceImpl implements QuestService {
         dto.setQuestType(entity.getQuestType());
         dto.setObjective(entity.getObjective());
         dto.setExpReward(entity.getExpReward());
-        dto.setCoinReward(entity.getCoinReward());
+        dto.setCoinReward(entity.getGoldReward());
         dto.setStatus(entity.getStatus());
         return dto;
     }
@@ -100,4 +106,32 @@ public class QuestServiceImpl implements QuestService {
             throw new RuntimeException("El usuario esta suspendido no puede aceptar misiones");
         }
     }
+
+    @Override
+    @Transactional
+    public void trackProgress(Long userId, Long questId, int progressDelta) {
+        UserQuest userQuest = userQuestRepository.findByUserIdAndQuestId(userId, questId)
+                .orElseThrow(() -> new EntityNotFoundException("Quest tracking not found for this user"));
+
+        if (userQuest.isCompleted()) {
+            return;
+        }
+
+        int remaining = userQuest.getObjectivesRemaining() - progressDelta;
+        if (remaining < 0) {
+            remaining = 0;
+        }
+        userQuest.setObjectivesRemaining(remaining);
+
+        if (remaining == 0) {
+            userQuest.setCompleted(true);
+
+            int goldReward = userQuest.getQuest().getGoldReward();
+
+            GoldRequestDto goldPayload = new GoldRequestDto(goldReward);
+            userFeignClient.updateGoldUser(userId, goldPayload);
+        }
+        userQuestRepository.save(userQuest);
+    }
+
 }

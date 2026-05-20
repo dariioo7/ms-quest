@@ -10,4 +10,5 @@ public interface QuestService {
     QuestResponseDto getQuestById(Long id);
     void deleteQuest(Long id);
     void assignQuestToUser(Long questId, Long userId);
+    void trackProgress(Long userId, Long questId, int progressDelta);
 }
