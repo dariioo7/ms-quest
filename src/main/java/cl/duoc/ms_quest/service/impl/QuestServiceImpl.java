@@ -1,7 +1,9 @@
 package cl.duoc.ms_quest.service.impl;
 
+import cl.duoc.ms_quest.client.UserFeignClient;
 import cl.duoc.ms_quest.dto.QuestRequestDto;
 import cl.duoc.ms_quest.dto.QuestResponseDto;
+import cl.duoc.ms_quest.dto.UserDto;
 import cl.duoc.ms_quest.model.Quest;
 import cl.duoc.ms_quest.repository.QuestRepository;
 import cl.duoc.ms_quest.service.QuestService;
@@ -17,6 +19,7 @@ public class QuestServiceImpl implements QuestService {
 
 
     private final QuestRepository repository;
+    private final UserFeignClient userFeignClient;
 
     @Override
     public QuestResponseDto createQuest(QuestRequestDto dto) {
@@ -71,5 +74,30 @@ public class QuestServiceImpl implements QuestService {
         dto.setCoinReward(entity.getCoinReward());
         dto.setStatus(entity.getStatus());
         return dto;
+    }
+
+    @Override
+    public void assignQuestToUser(Long questId, Long userId) {
+        try {
+            userFeignClient.getUserById(userId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error: El usuario con la id: " + userId + " no existe");
+        }
+
+        Quest quest = repository.findById(questId)
+                .orElseThrow(() -> new RuntimeException("Misión no encontrada"));
+
+
+        System.out.println("La misión " + quest.getTitle() + " ha sido asignada al usuario: " + userId);
+    }
+
+    public void validateUser(Long userId) {
+        UserDto user =  userFeignClient.getUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("El usuario con la id: " + userId + " no existe");
+        }
+        if ("SUSPENDED".equals(user.getAccountStatus())) {
+            throw new RuntimeException("El usuario esta suspendido no puede aceptar misiones");
+        }
     }
 }
