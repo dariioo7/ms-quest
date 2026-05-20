@@ -9,4 +9,5 @@ public interface QuestService {
     List<QuestResponseDto> getAllQuests();
     QuestResponseDto getQuestById(Long id);
     void deleteQuest(Long id);
+    void assignQuestToUser(Long questId, Long userId);
 }

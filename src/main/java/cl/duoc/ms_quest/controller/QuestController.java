@@ -37,4 +37,20 @@ public class QuestController {
         service.deleteQuest(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/assign/{userId}")
+    public ResponseEntity<String> assignQuest(@PathVariable Long misionId, @PathVariable Long usuarioId) {
+        service.assignQuestToUser(misionId, usuarioId);
+        return ResponseEntity.ok("Misión asignada correctamente");
+    }
+
+    @PutMapping("/user/{id}/progress")
+    public ResponseEntity<Void> updateProgress(@PathVariable Long id, @RequestParam Integer objective) {
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/{id}/complete")
+    public ResponseEntity<String> completeQuest(@PathVariable Long id) {
+        return ResponseEntity.ok("Misión completada");
+    }
 }
