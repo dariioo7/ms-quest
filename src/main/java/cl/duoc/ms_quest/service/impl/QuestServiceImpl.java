@@ -4,7 +4,6 @@ import cl.duoc.ms_quest.client.UserFeignClient;
 import cl.duoc.ms_quest.dto.GoldRequestDto;
 import cl.duoc.ms_quest.dto.QuestRequestDto;
 import cl.duoc.ms_quest.dto.QuestResponseDto;
-import cl.duoc.ms_quest.dto.UserDto;
 import cl.duoc.ms_quest.model.Quest;
 import cl.duoc.ms_quest.model.UserQuest;
 import cl.duoc.ms_quest.repository.QuestRepository;
@@ -97,15 +96,6 @@ public class QuestServiceImpl implements QuestService {
         System.out.println("La misión " + quest.getTitle() + " ha sido asignada al usuario: " + userId);
     }
 
-    public void validateUser(Long userId) {
-        UserDto user =  userFeignClient.getUserById(userId);
-        if (user == null) {
-            throw new RuntimeException("El usuario con la id: " + userId + " no existe");
-        }
-        if ("SUSPENDED".equals(user.getAccountStatus())) {
-            throw new RuntimeException("El usuario esta suspendido no puede aceptar misiones");
-        }
-    }
 
     @Override
     @Transactional

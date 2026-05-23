@@ -17,11 +17,11 @@ public class QuestRequestDto {
     private QuestType questType;
 
     @Min(value = 1, message = "El minimo de objetivos debe ser 1")
-    private Integer objective;
+    private int objective;
 
     @Min(value = 0, message = "La experencia no debe ser negativa")
-    private Integer expReward;
+    private int expReward;
 
     @Min(value = 0, message = "Las recompensas no deben ser negativas")
-    private Integer coinReward;
+    private int coinReward;
 }
