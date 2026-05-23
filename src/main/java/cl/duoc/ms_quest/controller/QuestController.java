@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/quests")
+@RequestMapping("/api/v1/quest")
 public class QuestController {
 
     @Autowired
@@ -39,8 +39,8 @@ public class QuestController {
     }
 
     @PostMapping("/{id}/assign/{userId}")
-    public ResponseEntity<String> assignQuest(@PathVariable Long misionId, @PathVariable Long usuarioId) {
-        service.assignQuestToUser(misionId, usuarioId);
+    public ResponseEntity<String> assignQuest(@PathVariable Long missionId, @PathVariable Long userId) {
+        service.assignQuestToUser(missionId, userId);
         return ResponseEntity.ok("Misión asignada correctamente");
     }
 
