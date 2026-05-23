@@ -12,11 +12,12 @@ import cl.duoc.ms_quest.service.QuestService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuestServiceImpl implements QuestService {
@@ -28,6 +29,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public QuestResponseDto createQuest(QuestRequestDto dto) {
+        log.info("createQuest dto {}", dto);
         Quest quest = toEntity(dto);
         quest = repository.save(quest);
         return toDto(quest);
@@ -35,6 +37,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public List<QuestResponseDto> getAllQuests() {
+        log.info("getAllQuests");
         return repository.findAll().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -42,6 +45,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public QuestResponseDto getQuestById(Long id) {
+        log.info("getQuestById {}", id);
         Quest quest = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La quest con el id " + id + " no existe"));
         return toDto(quest);
@@ -49,6 +53,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public void deleteQuest(Long id) {
+        log.info("deleteQuest {}", id);
         if (!repository.existsById(id)) {
             throw new RuntimeException("No se puede borrar: La quest con el id " + id + " no existe");
         }
@@ -83,6 +88,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public void assignQuestToUser(Long questId, Long userId) {
+        log.info("assignQuestToUser {}", questId);
         try {
             userFeignClient.getUserById(userId);
         } catch (Exception e) {
@@ -100,6 +106,7 @@ public class QuestServiceImpl implements QuestService {
     @Override
     @Transactional
     public void trackProgress(Long userId, Long questId, int progressDelta) {
+        log.info("trackProgress {}", progressDelta);
         UserQuest userQuest = userQuestRepository.findByUserIdAndQuestId(userId, questId)
                 .orElseThrow(() -> new EntityNotFoundException("Quest tracking not found for this user"));
 
